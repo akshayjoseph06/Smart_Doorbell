@@ -1,38 +1,67 @@
-Created by Akshay Joseph and inspired by Jo
+// ECHO pin - D2
+//Trig - D1
+//Buzzer D3
+
+
 #define BLYNK_PRINT Serial
 #include <ESP8266WiFi.h>
 #include <BlynkSimpleEsp8266.h>
+char auth[] = "Your_Auth_Token";
+char ssid[] = "WIFI_SSID";
+char pass[] = "WIFI_Password";
 #define echoPin D2
 #define trigPin D1
-#define out D3
-long int duration;
-int distance, temp = 0;
-char ssid[] = "Your  SSID";
-char pass[] = "Your WiFI password";
-char auth[] = "authtoken_from_Blynk";
+#define Buzz D3
+#define Out_LED D0
+long duration;
+int distance,temp=0;
+
 void setup() {
-  Serial.begin(9600);
+  Serial.begin(115200);
+
   Blynk.begin(auth, ssid, pass);
+  pinMode(trigPin,OUTPUT);
+  pinMode(echoPin,INPUT);
+  pinMode(Buzz,OUTPUT);
+  pinMode(Out_LED,OUTPUT);
 
 }
 
 void loop() {
-
-
-  digitalWrite(trigPin, LOW);
+   digitalWrite(trigPin,LOW);
   delayMicroseconds(2);
-  digitalWrite(trigPin, HIGH);
+  digitalWrite(trigPin,HIGH);
   delayMicroseconds(10);
-  digitalWrite(trigPin, LOW);
+  digitalWrite(trigPin,LOW);
+   duration=pulseIn(echoPin,HIGH);
+  distance=(duration*0.034/2);
+  Serial.print("Distance : ");
+  Serial.print(distance);
+  Serial.println(" cm ");
 
-  duration = pulseIn(echoPin, HIGH);
-  distance = (duration * 0.034 / 2);
-
-  if (distance < 15 && temp == 0) {
-    digitalWrite(out, HIGH);
-    delay(300);
+   if (distance < 15 && temp == 0) {
+    digitalWrite(Buzz, HIGH);
+    digitalWrite(Out_LED,LOW);
+    
+    delay(500);
     Blynk.notify("You have a visitor........");
-    digitalWrite(out, LOW);
+    digitalWrite(Buzz, LOW);
+    digitalWrite(Out_LED,HIGH);
+    delay(1000);
+    temp = 1;
+  }
+    else if (distance < 15 && temp == 1) {
+    digitalWrite(Buzz, LOW);
+    digitalWrite(Out_LED,HIGH);
+  }
+  else {
+    digitalWrite(Buzz, LOW);
+    digitalWrite(Out_LED,HIGH);
+    temp = 0;
+  }
+  
+// Blynk.run();
+}
     delay(1000);
     temp = 1;
   }
